@@ -43,6 +43,8 @@ protected:
 	
 	void drawCube();
 	void drawTriangles();
+	void drawQuads();
+	void drawSkybox();
 
 	// For access to user input.
 	Input* input;
@@ -55,6 +57,13 @@ protected:
 	int frame = 0, time, timebase = 0;
 	char fps[40];
 	char mouseText[40];
+
+	// Textures
+	GLuint myTexture;
+	GLuint skyboxTexture;
+	GLuint grassTexture;
+
+
 
 };
 

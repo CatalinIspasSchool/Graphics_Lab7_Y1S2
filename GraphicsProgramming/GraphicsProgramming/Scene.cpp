@@ -39,8 +39,10 @@ void Scene::render() {
 	gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 	
 	// Render geometry/scene here -------------------------------------
-	
-	drawTriangles();
+	drawSkybox();
+
+	drawQuads();
+	//drawCube();
 
 	// End render geometry --------------------------------------
 
@@ -62,6 +64,29 @@ void Scene::initialiseOpenGL()
 	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
 	glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
+
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	myTexture = SOIL_load_OGL_texture(
+		"gfx/transparentcrate.png",
+		SOIL_LOAD_AUTO,
+		SOIL_CREATE_NEW_ID,
+		SOIL_FLAG_MIPMAPS | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
+	skyboxTexture = SOIL_load_OGL_texture(
+		"gfx/transparentcrate.png",
+		SOIL_LOAD_AUTO,
+		SOIL_CREATE_NEW_ID,
+		SOIL_FLAG_MIPMAPS | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
+	grassTexture = SOIL_load_OGL_texture(
+		"gfx/transparentcrate.png",
+		SOIL_LOAD_AUTO,
+		SOIL_CREATE_NEW_ID,
+		SOIL_FLAG_MIPMAPS | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
+
+	glBindTexture(GL_TEXTURE_2D, myTexture);
+
+
+
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	// Blending function
 }
@@ -129,10 +154,11 @@ void Scene::drawTriangles()
 {
 	glPushMatrix();
 		glColor3f(1,0,1);
+
 		glBegin(GL_TRIANGLES);
-			glVertex3f(-0.5, 0.5, 0);
-			glVertex3f(0.5, -0.5, 0);
-			glVertex3f(-0.5, -0.5, 0.5);
+			glVertex3f(-0.5, 0.5, 1);
+			glVertex3f(0.5, -0.5, 1);
+			glVertex3f(-0.5, -0.5, 1);
 		glEnd();
 	glPopMatrix();
 	
@@ -140,13 +166,141 @@ void Scene::drawTriangles()
 	glPushMatrix();
 		glColor3f(0.2, 0.7, 0.1);
 		glBegin(GL_TRIANGLES);
-			glVertex3f(-0.5, -1, 0.5);
-			glVertex3f(0.5, -1, -0.5);
-			glVertex3f(-0.5, -1, -0.5);
+			glVertex3f(0.5, 0.5, 0);
+			glVertex3f(0.5, -0.5, 0);
+			glVertex3f(-0.5, -0.5, 0);
 		glEnd();
 	glPopMatrix();
 }
 
+void Scene::drawQuads()
+{
+
+
+	glPushMatrix();
+		glBegin(GL_QUADS);
+			glColor4f(0, 1, 0, 1); 	// Green
+			glVertex3f(-0.5, 0.5, 0);
+			glVertex3f(0.5, 0.5, 0);
+			glVertex3f(0.5, -0.5, 0);
+			glVertex3f(-0.5, -0.5, 0);
+		glEnd();
+
+		glBegin(GL_QUADS);
+			glColor4f(0, 0, 0.1, 1); 	// "Dark" Blue
+			glVertex3f(0.5, 0.5, -0.3);
+			glVertex3f(1, 0.5, -0.3);
+			glVertex3f(1, -0.5, -0.3);
+			glVertex3f(0.5, -0.5, -0.3);
+		glEnd();
+
+		glEnable(GL_BLEND);	// Enable blending
+		glBindTexture(GL_TEXTURE_2D, myTexture);//Bind our texture
+		glColor3f(1.0f, 1.0f, 1.0f);//Make sure the colour is white
+		glBegin(GL_QUADS);
+			//glColor4f(0.3, 0.3, 1, 0.1); // Red
+			glTexCoord2f(0.0f, 1.0f);
+				glVertex3f(-1, 1, 0.3);
+
+			glTexCoord2f(1.0f, 1.0f);
+				glVertex3f(1, 1, 0.3);
+			glTexCoord2f(1.0f, 0.0f);
+				glVertex3f(1, -1, 0.3);
+			glTexCoord2f(0.0f, 0.0f);
+				glVertex3f(-1, -1, 0.3);
+		glEnd();
+		glDisable(GL_BLEND);
+	glPopMatrix();
+
+}
+
+void Scene::drawSkybox()
+{
+	glDisable(GL_DEPTH_TEST);
+	
+	glPushMatrix();	//StartCube
+	
+		glBindTexture(GL_TEXTURE_2D, skyboxTexture);//Bind our texture
+		glColor3f(1.0f, 1.0f, 1.0f);//Make sure the colour is white
+		
+		glBegin(GL_QUADS);
+			//face 1
+			glNormal3f(0.0f, 0.0f, 1.0f);
+			//glColor3f(1.f, 0.f, 0.f);
+			glTexCoord2f(0.0f, 0.75f);
+				glVertex3f(-0.5f, 0.5f, 6.5f);
+			glTexCoord2f(0.25f, 0.75f);
+				glVertex3f(0.5f, 0.5f, 6.5f);
+			glTexCoord2f(0.25f, 0.5f);
+				glVertex3f(0.5f, -0.5f, 6.5f);
+			glTexCoord2f(0.0f, 0.5f);
+				glVertex3f(-0.5f, -0.5f, 6.5f);
+
+			//face 2
+			glNormal3f(0.0f, 1.0f, 0.0f);
+			//glColor3f(0.f, 0.f, 1.f);
+			glTexCoord2f(0.25f, 0.75f);
+				glVertex3f(-0.5f, 0.5f, 7.f);
+			glTexCoord2f(0.5f, 0.75f);
+				glVertex3f(0.5f, 0.5f, 7.f);
+			glTexCoord2f(0.5f, 0.5f);
+				glVertex3f(0.5f, 0.5f, 6.5f);
+			glTexCoord2f(0.25f, 0.5f);
+				glVertex3f(-0.5f, 0.5f, 6.5f);
+
+			//face 3
+			glNormal3f(0.0f, 0.0f, -1.0f);
+			//glColor3f(1.f, 0.f, 0.f);
+			glTexCoord2f(0.5f, 0.75f);
+				glVertex3f(-0.5f, 0.5f, 7.f);
+			glTexCoord2f(0.75f, 0.75f);
+				glVertex3f(0.5f, 0.5f, 7.f);
+			glTexCoord2f(0.75f, 0.5f);
+				glVertex3f(0.5f, -0.5f, 7.f);
+			glTexCoord2f(0.5f, 0.5f);
+				glVertex3f(-0.5f, -0.5f, 7.f);
+
+			//face 4
+			glNormal3f(0.0f, -1.0f, 0.0f);
+			//glColor3f(0.0f, 0.0f, 1.0f);
+			glTexCoord2f(0.75f, 0.75f);
+				glVertex3f(-0.5f, -0.5f, 7.f);
+			glTexCoord2f(1.f, 0.75f);
+				glVertex3f(0.5f, -0.5f, 7.f);
+			glTexCoord2f(1.f, 0.5f);
+				glVertex3f(0.5f, -0.5f, 6.5f);
+			glTexCoord2f(0.75f, 0.5f);
+				glVertex3f(-0.5f, -0.5f, 6.5f);
+
+			//face 5
+			glNormal3f(-1.0f, 0.0f, 0.0f);
+			//glColor3f(0.0f, 1.0f, 0.0f);
+			
+			glVertex3f(-0.5f, 0.5f, 6.5f);
+			
+			glVertex3f(-0.5f, 0.5f, 7.f);
+			
+			glVertex3f(-0.5f, -0.5f, 7.f);
+			
+			glVertex3f(-0.5f, -0.5f, 6.5f);
+
+			//face 6
+			glNormal3f(1.0f, 0.0f, 0.0f);
+			//glColor3f(0.0f, 1.0f, 0.0f);
+			
+			glVertex3f(0.5f, 0.5f, 6.5f);
+			
+			glVertex3f(0.5f, 0.5f, 7.f);
+			
+			glVertex3f(0.5f, -0.5f, 7.f);
+			
+			glVertex3f(0.5f, -0.5f, 6.5f);
+
+		glEnd();
+	glPopMatrix(); //EndCube
+
+	glEnable(GL_DEPTH_TEST);
+}
 
 // Handles the resize of the window. If the window changes size the perspective matrix requires re-calculation to match new window size.
 void Scene::resize(int w, int h) 
