@@ -41,6 +41,8 @@ protected:
 
 	// draw primitive functions
 	
+	void drawCube();
+	void drawTriangles();
 
 	// For access to user input.
 	Input* input;

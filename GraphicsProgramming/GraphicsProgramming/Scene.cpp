@@ -40,7 +40,7 @@ void Scene::render() {
 	
 	// Render geometry/scene here -------------------------------------
 	
-
+	drawTriangles();
 
 	// End render geometry --------------------------------------
 
@@ -65,6 +65,88 @@ void Scene::initialiseOpenGL()
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	// Blending function
 }
+
+
+
+void Scene::drawCube()
+{
+	glPushMatrix();	//StartCube
+		glRotatef(time / 50, time / 5, time / 10, 1);
+		glBegin(GL_QUADS);
+			//face 1
+			glNormal3f(0.0f, 0.0f, 1.0f);
+			glColor3f(1.f, 0.f, 0.f);
+			glVertex3f(-0.5f, 0.5f, 0.5f);
+			glVertex3f(0.5f, 0.5f, 0.5f);
+			glVertex3f(0.5f, -0.5f, 0.5f);
+			glVertex3f(-0.5f, -0.5f, 0.5f);
+
+			//face 2
+			glNormal3f(0.0f, 1.0f, 0.0f);
+			glColor3f(0.f, 0.f, 1.f);
+			glVertex3f(-0.5f, 0.5f, -0.5f);
+			glVertex3f(0.5f, 0.5f, -0.5f);
+			glVertex3f(0.5f, 0.5f, 0.5f);
+			glVertex3f(-0.5f, 0.5f, 0.5f);
+
+			//face 3
+			glNormal3f(0.0f, 0.0f, -1.0f);
+			glColor3f(1.f, 0.f, 0.f);
+			glVertex3f(-0.5f, 0.5f, -0.5f);
+			glVertex3f(0.5f, 0.5f, -0.5f);
+			glVertex3f(0.5f, -0.5f, -0.5f);
+			glVertex3f(-0.5f, -0.5f, -0.5f);
+
+			//face 4
+			glNormal3f(0.0f, -1.0f, 0.0f);
+			glColor3f(0.0f, 0.0f, 1.0f);
+			glVertex3f(-0.5f, -0.5f, -0.5f);
+			glVertex3f(0.5f, -0.5f, -0.5f);
+			glVertex3f(0.5f, -0.5f, 0.5f);
+			glVertex3f(-0.5f, -0.5f, 0.5f);
+
+			//face 5
+			glNormal3f(-1.0f, 0.0f, 0.0f);
+			glColor3f(0.0f, 1.0f, 0.0f);
+			glVertex3f(-0.5f, 0.5f, 0.5f);
+			glVertex3f(-0.5f, 0.5f, -0.5f);
+			glVertex3f(-0.5f, -0.5f, -0.5f);
+			glVertex3f(-0.5f, -0.5f, 0.5f);
+
+			//face 6
+			glNormal3f(1.0f, 0.0f, 0.0f);
+			glColor3f(0.0f, 1.0f, 0.0f);
+			glVertex3f(0.5f, 0.5f, 0.5f);
+			glVertex3f(0.5f, 0.5f, -0.5f);
+			glVertex3f(0.5f, -0.5f, -0.5f);
+			glVertex3f(0.5f, -0.5f, 0.5f);
+
+		glEnd();
+	glPopMatrix(); //EndCube
+}
+
+void Scene::drawTriangles()
+{
+	glPushMatrix();
+		glColor3f(1,0,1);
+		glBegin(GL_TRIANGLES);
+			glVertex3f(-0.5, 0.5, 0);
+			glVertex3f(0.5, -0.5, 0);
+			glVertex3f(-0.5, -0.5, 0.5);
+		glEnd();
+	glPopMatrix();
+	
+	
+	glPushMatrix();
+		glColor3f(0.2, 0.7, 0.1);
+		glBegin(GL_TRIANGLES);
+			glVertex3f(-0.5, -1, 0.5);
+			glVertex3f(0.5, -1, -0.5);
+			glVertex3f(-0.5, -1, -0.5);
+		glEnd();
+	glPopMatrix();
+}
+
 
 // Handles the resize of the window. If the window changes size the perspective matrix requires re-calculation to match new window size.
 void Scene::resize(int w, int h) 
