@@ -18,6 +18,24 @@ Scene::Scene(Input *in)
 void Scene::handleInput(float dt)
 {
 	// Handle user input
+
+	// Camera movement
+	if (input->isKeyDown('w')) myCamera.moveForward(dt * 10);
+	else if (input->isKeyDown('s'))	myCamera.moveForward(-dt * 10);
+	if (input->isKeyDown('e')) myCamera.moveUp(dt * 10);
+	else if (GetAsyncKeyState('q')) myCamera.moveUp(-dt * 10);									//This is needed cuz ctrl is a modifier key, thus it doesn't normally register alone normally. Shift is VK_SHIFT
+	if (input->isKeyDown('d')) myCamera.moveRight(dt * 10);
+	else if (input->isKeyDown('a')) myCamera.moveRight(-dt * 10);
+
+	int mousePos[2] = { input->getMouseX(), input->getMouseY() };
+	// Camera rotation
+	if (input->isMouseRDown())
+	{
+		myCamera.turnUp(mousePreviousPos[1] - mousePos[1]);
+		myCamera.turnRight(mousePos[0] - mousePreviousPos[0]);
+	}
+	mousePreviousPos[0] = mousePos[0];
+	mousePreviousPos[1] = mousePos[1];
 }
 
 void Scene::update(float dt)
@@ -36,7 +54,8 @@ void Scene::render() {
 	// Reset transformations
 	glLoadIdentity();
 	// Set the camera
-	gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	//gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	myCamera.update();
 	
 	// Render geometry/scene here -------------------------------------
 	drawSkybox();
@@ -73,7 +92,7 @@ void Scene::initialiseOpenGL()
 		SOIL_CREATE_NEW_ID,
 		SOIL_FLAG_MIPMAPS | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
 	skyboxTexture = SOIL_load_OGL_texture(
-		"gfx/transparentcrate.png",
+		"gfx/skybox.png",
 		SOIL_LOAD_AUTO,
 		SOIL_CREATE_NEW_ID,
 		SOIL_FLAG_MIPMAPS | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT);
@@ -220,81 +239,82 @@ void Scene::drawSkybox()
 	
 	glPushMatrix();	//StartCube
 	
+		glTranslatef(myCamera.Position.x, myCamera.Position.y, myCamera.Position.z);
 		glBindTexture(GL_TEXTURE_2D, skyboxTexture);//Bind our texture
 		glColor3f(1.0f, 1.0f, 1.0f);//Make sure the colour is white
 		
 		glBegin(GL_QUADS);
 			//face 1
-			glNormal3f(0.0f, 0.0f, 1.0f);
-			//glColor3f(1.f, 0.f, 0.f);
-			glTexCoord2f(0.0f, 0.75f);
-				glVertex3f(-0.5f, 0.5f, 6.5f);
-			glTexCoord2f(0.25f, 0.75f);
-				glVertex3f(0.5f, 0.5f, 6.5f);
-			glTexCoord2f(0.25f, 0.5f);
-				glVertex3f(0.5f, -0.5f, 6.5f);
-			glTexCoord2f(0.0f, 0.5f);
-				glVertex3f(-0.5f, -0.5f, 6.5f);
-
-			//face 2
-			glNormal3f(0.0f, 1.0f, 0.0f);
-			//glColor3f(0.f, 0.f, 1.f);
-			glTexCoord2f(0.25f, 0.75f);
-				glVertex3f(-0.5f, 0.5f, 7.f);
-			glTexCoord2f(0.5f, 0.75f);
-				glVertex3f(0.5f, 0.5f, 7.f);
-			glTexCoord2f(0.5f, 0.5f);
-				glVertex3f(0.5f, 0.5f, 6.5f);
-			glTexCoord2f(0.25f, 0.5f);
-				glVertex3f(-0.5f, 0.5f, 6.5f);
-
-			//face 3
 			glNormal3f(0.0f, 0.0f, -1.0f);
 			//glColor3f(1.f, 0.f, 0.f);
-			glTexCoord2f(0.5f, 0.75f);
-				glVertex3f(-0.5f, 0.5f, 7.f);
-			glTexCoord2f(0.75f, 0.75f);
-				glVertex3f(0.5f, 0.5f, 7.f);
+			glTexCoord2f(1.0f, 0.25f);
+				glVertex3f(-0.5f, 0.5f, 0.5f);
+			glTexCoord2f(0.75f, 0.25f);
+				glVertex3f(0.5f, 0.5f, 0.5f);
 			glTexCoord2f(0.75f, 0.5f);
-				glVertex3f(0.5f, -0.5f, 7.f);
+				glVertex3f(0.5f, -0.5f, 0.5f);
+			glTexCoord2f(1.0f, 0.5f);
+				glVertex3f(-0.5f, -0.5f, 0.5f);
+
+			//face 2
+			glNormal3f(1.0f, 0.0f, 0.0f);
+			//glColor3f(0.f, 0.f, 1.f);
+			glTexCoord2f(0.0f, 0.25f);
+				glVertex3f(-0.5f, 0.5f, -0.5f);
+			glTexCoord2f(0.25f, 0.25f);
+				glVertex3f(-0.5f, 0.5f, 0.5f);
+			glTexCoord2f(0.25f, 0.5f);
+				glVertex3f(-0.5f, -0.5f, 0.5f);
+			glTexCoord2f(0.0f, 0.5f);
+				glVertex3f(-0.5f, -0.5f, -0.5f);
+
+			//face 3
+			glNormal3f(0.0f, 0.0f, 1.0f);
+			//glColor3f(1.f, 0.f, 0.f);
+			glTexCoord2f(0.25f, 0.25f);
+				glVertex3f(-0.5f, 0.5f, -0.5f);
+			glTexCoord2f(0.5f, 0.25f);
+				glVertex3f(0.5f, 0.5f, -0.5f);
 			glTexCoord2f(0.5f, 0.5f);
-				glVertex3f(-0.5f, -0.5f, 7.f);
+				glVertex3f(0.5f, -0.5f, -0.5f);
+			glTexCoord2f(0.25f, 0.5f);
+				glVertex3f(-0.5f, -0.5f, -0.5f);
 
 			//face 4
-			glNormal3f(0.0f, -1.0f, 0.0f);
+			glNormal3f(-1.0f, .0f, 0.0f);
 			//glColor3f(0.0f, 0.0f, 1.0f);
-			glTexCoord2f(0.75f, 0.75f);
-				glVertex3f(-0.5f, -0.5f, 7.f);
-			glTexCoord2f(1.f, 0.75f);
-				glVertex3f(0.5f, -0.5f, 7.f);
-			glTexCoord2f(1.f, 0.5f);
-				glVertex3f(0.5f, -0.5f, 6.5f);
+			glTexCoord2f(0.5f, 0.25f);
+				glVertex3f(0.5f, 0.5f, -0.5f);
+			glTexCoord2f(0.75f, 0.25f);
+				glVertex3f(0.5f, 0.5f, 0.5f);
 			glTexCoord2f(0.75f, 0.5f);
-				glVertex3f(-0.5f, -0.5f, 6.5f);
+				glVertex3f(0.5f, -0.5f, 0.5f);
+			glTexCoord2f(0.5f, 0.5f);
+				glVertex3f(0.5f, -0.5f, -0.5f);
 
 			//face 5
-			glNormal3f(-1.0f, 0.0f, 0.0f);
+			glNormal3f(0.0f, -1.0f, 0.0f);
 			//glColor3f(0.0f, 1.0f, 0.0f);
-			
-			glVertex3f(-0.5f, 0.5f, 6.5f);
-			
-			glVertex3f(-0.5f, 0.5f, 7.f);
-			
-			glVertex3f(-0.5f, -0.5f, 7.f);
-			
-			glVertex3f(-0.5f, -0.5f, 6.5f);
+			glTexCoord2f(0.25f, 0.0f);
+				glVertex3f(-0.5f, 0.5f, 0.5f);
+			glTexCoord2f(0.5f, 0.0f);
+				glVertex3f(0.5f, 0.5f, 0.5f);
+			glTexCoord2f(0.5f, 0.25f);
+				glVertex3f(0.5f, 0.5f, -0.5f);
+			glTexCoord2f(0.25f, 0.25f);
+				glVertex3f(-0.5f, 0.5f, -0.5f);
 
 			//face 6
-			glNormal3f(1.0f, 0.0f, 0.0f);
+			glNormal3f(0.0f, 1.0f, 0.0f);
 			//glColor3f(0.0f, 1.0f, 0.0f);
-			
-			glVertex3f(0.5f, 0.5f, 6.5f);
-			
-			glVertex3f(0.5f, 0.5f, 7.f);
-			
-			glVertex3f(0.5f, -0.5f, 7.f);
-			
-			glVertex3f(0.5f, -0.5f, 6.5f);
+			glTexCoord2f(0.25f, 0.5f);
+				glVertex3f(-0.5f, -0.5f, 0.5f);
+			glTexCoord2f(0.5f, 0.5f);
+				glVertex3f(0.5f, -0.5f, 0.5f);
+			glTexCoord2f(0.5f, 0.75f);
+				glVertex3f(0.5f, -0.5f, -0.5f);
+			glTexCoord2f(0.25f, 0.75f);
+				glVertex3f(-0.5f, -0.5f, -0.5f);
 
 		glEnd();
 	glPopMatrix(); //EndCube

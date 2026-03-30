@@ -14,6 +14,7 @@
 #include <stdio.h>
 // Further includes should go here:
 #include "SOIL.h"
+#include "MyCamera.h"
 #include <vector>
 
 
@@ -48,7 +49,10 @@ protected:
 
 	// For access to user input.
 	Input* input;
-		
+	int mousePreviousPos[2];
+
+	// My camera
+	MyCamera myCamera;
 	// For Window and frustum calculation.
 	int width, height;
 	float fov, nearPlane, farPlane;
